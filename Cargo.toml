@@ -8,3 +8,4 @@ default = ["sdl2/image"]
 
 [dependencies]
 sdl2 = "*"
+rand = "*"
