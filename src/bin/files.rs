@@ -23,6 +23,13 @@ fn write_into_file(content: &str, file_name: &str) -> io::Result<()> {
 //     file.write_all(content.as_bytes())
 // }
 
+
+fn read_from_file(file_name: &str) -> io::Result<String> {
+    let mut content = String::new();
+    File::open(file_name)?.read_to_string(&mut content)?;
+    Ok(content)
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     let mut my_file = File::create("test.txt")?;
 
@@ -33,10 +40,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut buf = String::new();
 
     my_file.read_to_string(&mut buf)?;
-
     println!("File contents: {}", buf);
 
-    write_into_file("lorem ipsum two", "test2.txt")?;
+
+    let file_name = "test2.txt";
+    write_into_file("lorem ipsum two", file_name)?;
+
+    let content = read_from_file(file_name)?;
+    println!("File contents using a separate func: {}", content);
 
     Ok(())
 }
