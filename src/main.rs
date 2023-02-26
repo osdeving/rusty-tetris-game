@@ -43,9 +43,7 @@ fn create_texture_rect<'a>(
     }
 }
 
-
 const TEXTURE_SIZE: u32 = 32;
-
 
 fn main() {
     let sdl_context = sdl2::init().expect("SDL Initialization Failed.");
@@ -68,8 +66,7 @@ fn main() {
         .build()
         .expect("Failed to convert window into canvas.");
 
-    let image_context =
-        image::init(InitFlag::PNG | InitFlag::JPG).expect("Couldn't initialize imagem context");
+    image::init(InitFlag::PNG | InitFlag::JPG).expect("Couldn't initialize imagem context");
 
     let texture_creator = canvas.texture_creator();
 
@@ -141,12 +138,9 @@ fn main() {
                 Rect::new(0, 0, TEXTURE_SIZE, TEXTURE_SIZE),
             )
             .expect("Couldn't copy texture into window");
-        
+
         canvas
-            .copy(
-                &image_texture,
-                None,
-                Rect::new(40, 40, 400, 400))
+            .copy(&image_texture, None, Rect::new(40, 40, 400, 400))
             .expect("Couldn't copy texture into window");
 
         canvas.present();
