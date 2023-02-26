@@ -87,6 +87,24 @@ fn read_from_file(file_name: &str) -> io::Result<String> {
     Ok(content)
 }
 
+
+fn load_highscores_and_lines() -> Option<(Vec<u32>, Vec<u32>)> {
+    if let Ok(content) = read_from_file("scores.txt") {
+        let mut lines = content.splitn(2, "\n").map(|line| line_to_slice(line)).collect::<Vec<_>>();
+
+        if lines.len() == 2 {
+            let (number_lines, highscores) = (lines.pop().unwrap(), lines.pop().unwrap());
+
+            Some((highscores, number_lines))
+        } else {
+            None
+        }
+    } else {
+        None
+    }
+}
+
+
 fn slice_to_string(slice: &[u32]) -> String {
     slice
         .iter()
