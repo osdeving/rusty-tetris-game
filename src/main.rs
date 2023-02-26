@@ -1,6 +1,6 @@
 use std::{
     thread::sleep,
-    time::{Duration, SystemTime},
+    time::{Duration, SystemTime}, fs::File, io::{Write, self},
 };
 
 use sdl2::{
@@ -44,6 +44,22 @@ fn create_texture_rect<'a>(
 }
 
 const TEXTURE_SIZE: u32 = 32;
+
+fn write_into_file(content: &str, file_name: &str) -> io::Result<()> {
+    let mut file = File::create(file_name)?;
+    file.write_all(content.as_bytes())
+}
+
+fn slice_to_string(slice: &[u32]) -> String {
+    slice.iter().map(|highscore| highscore.to_string()).collect::<Vec<String>>().join(" ")
+}
+
+fn save_highscores_and_lines(highscores: &[u32], number_of_lines: &[u32]) -> bool {
+    let s_highscores = slice_to_string(highscores);
+    let s_number_of_lines = slice_to_string(number_of_lines);
+
+    write_into_file(&format!("{}\n{}\n", s_highscores, s_number_of_lines), "scores.txt").is_ok()
+}
 
 fn main() {
     let sdl_context = sdl2::init().expect("SDL Initialization Failed.");
@@ -105,6 +121,11 @@ fn main() {
     let mut event_bump = sdl_context
         .event_pump()
         .expect("Failed to get SDL event bump");
+
+
+    let highscores = [10, 20,  30];
+    let number_of_lines = [2, 3, 4];
+    save_highscores_and_lines(&highscores, &number_of_lines);
 
     'running: loop {
         for event in event_bump.poll_iter() {
