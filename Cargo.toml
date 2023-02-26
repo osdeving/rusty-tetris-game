@@ -3,6 +3,8 @@ name = "rusty-tetris-game"
 version = "0.0.1"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[features]
+default = ["sdl2/image"]
 
 [dependencies]
 sdl2 = "*"
