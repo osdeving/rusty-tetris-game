@@ -53,6 +53,28 @@ fn line_to_slice(line: &str) -> Vec<u32> {
         .collect()
 }
 
+#[test]
+fn test_line_to_slice() {
+    let v = line_to_slice("10 20 30");
+
+    assert_eq!(v[0], 10);
+
+    let a = ["1", "two", "NaN", "four", "5"];
+
+    let mut iter = a.iter().filter_map(|s| s.parse().ok());
+
+    assert_eq!(iter.next(), Some(1));
+    assert_eq!(iter.next(), Some(5));
+    assert_eq!(iter.next(), None);
+
+
+    let a = ["1", "two", "NaN", "four", "5"];
+    let mut iter = a.iter().map(|s| s.parse()).filter(|s| s.is_ok()).map(|s| s.unwrap());
+    assert_eq!(iter.next(), Some(1));
+    assert_eq!(iter.next(), Some(5));
+    assert_eq!(iter.next(), None);
+}
+
 fn write_into_file(content: &str, file_name: &str) -> io::Result<()> {
     let mut file = File::create(file_name)?;
     file.write_all(content.as_bytes())
