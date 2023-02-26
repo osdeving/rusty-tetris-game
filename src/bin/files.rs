@@ -5,6 +5,24 @@ fn write_into_file(content: &str, file_name: &str) -> io::Result<()> {
     file.write_all(content.as_bytes())
 }
 
+// using long form of error handler
+// fn write_into_file(content: &str, file_name: &str) -> io::Result<()> {
+//     let mut file = match File::create(file_name) {
+//         Ok(f) => f,
+//         Err(e) => return Err(e),
+//     };
+
+//     file.write_all(content.as_bytes())
+// }
+
+
+
+// using try! macro  (deprecated) instead elvis operator (?)
+// fn write_into_file(content: &str, file_name: &str) -> io::Result<()> {
+//     let mut file = try!(File::create(file_name));
+//     file.write_all(content.as_bytes())
+// }
+
 fn main() -> Result<(), Box<dyn Error>> {
     let mut my_file = File::create("test.txt")?;
 
