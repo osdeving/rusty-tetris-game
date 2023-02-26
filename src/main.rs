@@ -1,6 +1,8 @@
 use std::{
+    fs::File,
+    io::{self, Write},
     thread::sleep,
-    time::{Duration, SystemTime}, fs::File, io::{Write, self},
+    time::{Duration, SystemTime},
 };
 
 use sdl2::{
@@ -51,14 +53,22 @@ fn write_into_file(content: &str, file_name: &str) -> io::Result<()> {
 }
 
 fn slice_to_string(slice: &[u32]) -> String {
-    slice.iter().map(|highscore| highscore.to_string()).collect::<Vec<String>>().join(" ")
+    slice
+        .iter()
+        .map(|highscore| highscore.to_string())
+        .collect::<Vec<String>>()
+        .join(" ")
 }
 
 fn save_highscores_and_lines(highscores: &[u32], number_of_lines: &[u32]) -> bool {
     let s_highscores = slice_to_string(highscores);
     let s_number_of_lines = slice_to_string(number_of_lines);
 
-    write_into_file(&format!("{}\n{}\n", s_highscores, s_number_of_lines), "scores.txt").is_ok()
+    write_into_file(
+        &format!("{}\n{}\n", s_highscores, s_number_of_lines),
+        "scores.txt",
+    )
+    .is_ok()
 }
 
 fn main() {
@@ -122,8 +132,7 @@ fn main() {
         .event_pump()
         .expect("Failed to get SDL event bump");
 
-
-    let highscores = [10, 20,  30];
+    let highscores = [10, 20, 30];
     let number_of_lines = [2, 3, 4];
     save_highscores_and_lines(&highscores, &number_of_lines);
 
