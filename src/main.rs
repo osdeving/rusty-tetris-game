@@ -1,6 +1,6 @@
 use std::{
     fs::File,
-    io::{self, Write, Read},
+    io::{self, Read, Write},
     thread::sleep,
     time::{Duration, SystemTime},
 };
@@ -67,14 +67,16 @@ fn test_line_to_slice() {
     assert_eq!(iter.next(), Some(5));
     assert_eq!(iter.next(), None);
 
-
     let a = ["1", "two", "NaN", "four", "5"];
-    let mut iter = a.iter().map(|s| s.parse()).filter(|s| s.is_ok()).map(|s| s.unwrap());
+    let mut iter = a
+        .iter()
+        .map(|s| s.parse())
+        .filter(|s| s.is_ok())
+        .map(|s| s.unwrap());
     assert_eq!(iter.next(), Some(1));
     assert_eq!(iter.next(), Some(5));
     assert_eq!(iter.next(), None);
 }
-
 
 fn write_into_file(content: &str, file_name: &str) -> io::Result<()> {
     let mut file = File::create(file_name)?;
@@ -87,10 +89,12 @@ fn read_from_file(file_name: &str) -> io::Result<String> {
     Ok(content)
 }
 
-
 fn load_highscores_and_lines() -> Option<(Vec<u32>, Vec<u32>)> {
     if let Ok(content) = read_from_file("scores.txt") {
-        let mut lines = content.splitn(2, "\n").map(|line| line_to_slice(line)).collect::<Vec<_>>();
+        let mut lines = content
+            .splitn(2, "\n")
+            .map(|line| line_to_slice(line))
+            .collect::<Vec<_>>();
 
         if lines.len() == 2 {
             let (number_lines, highscores) = (lines.pop().unwrap(), lines.pop().unwrap());
@@ -103,7 +107,6 @@ fn load_highscores_and_lines() -> Option<(Vec<u32>, Vec<u32>)> {
         None
     }
 }
-
 
 fn slice_to_string(slice: &[u32]) -> String {
     slice
