@@ -47,6 +47,12 @@ fn create_texture_rect<'a>(
 
 const TEXTURE_SIZE: u32 = 32;
 
+fn line_to_slice(line: &str) -> Vec<u32> {
+    line.split(" ")
+        .filter_map(|n| n.parse::<u32>().ok())
+        .collect()
+}
+
 fn write_into_file(content: &str, file_name: &str) -> io::Result<()> {
     let mut file = File::create(file_name)?;
     file.write_all(content.as_bytes())
