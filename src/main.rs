@@ -1,12 +1,16 @@
-use std::{thread::sleep, time::{Duration, SystemTime}};
+use std::{
+    thread::sleep,
+    time::{Duration, SystemTime},
+};
 
 use sdl2::{
     event::Event,
+    image::{self, InitFlag, LoadTexture},
     keyboard::Keycode,
     pixels::Color,
     rect::Rect,
-    render::{Canvas, Texture, TextureCreator}, 
-    video::{WindowContext, Window},
+    render::{Canvas, Texture, TextureCreator},
+    video::{Window, WindowContext},
 };
 
 extern crate sdl2;
@@ -39,6 +43,10 @@ fn create_texture_rect<'a>(
     }
 }
 
+
+const TEXTURE_SIZE: u32 = 32;
+
+
 fn main() {
     let sdl_context = sdl2::init().expect("SDL Initialization Failed.");
 
@@ -60,8 +68,14 @@ fn main() {
         .build()
         .expect("Failed to convert window into canvas.");
 
+    let image_context =
+        image::init(InitFlag::PNG | InitFlag::JPG).expect("Couldn't initialize imagem context");
+
     let texture_creator = canvas.texture_creator();
-    const TEXTURE_SIZE: u32 = 32;
+
+    let image_texture = texture_creator
+        .load_texture("assets/rust-logo.jpg")
+        .expect("Couldn't load imagem");
 
     let mut square_texture = texture_creator
         .create_texture_target(None, TEXTURE_SIZE, TEXTURE_SIZE)
@@ -74,8 +88,20 @@ fn main() {
         })
         .expect("Failed to config texture color");
 
-    let red_square = create_texture_rect(&mut canvas, &texture_creator, TextureColor::Red, TEXTURE_SIZE).expect("Failed to create a texture");
-    let yellow_square = create_texture_rect(&mut canvas, &texture_creator, TextureColor::Yellow, TEXTURE_SIZE).expect("Failed to create a texture");
+    let red_square = create_texture_rect(
+        &mut canvas,
+        &texture_creator,
+        TextureColor::Red,
+        TEXTURE_SIZE,
+    )
+    .expect("Failed to create a texture");
+    let yellow_square = create_texture_rect(
+        &mut canvas,
+        &texture_creator,
+        TextureColor::Yellow,
+        TEXTURE_SIZE,
+    )
+    .expect("Failed to create a texture");
 
     let timer = SystemTime::now();
 
@@ -97,12 +123,9 @@ fn main() {
         canvas.set_draw_color(Color::BLACK);
         canvas.clear();
 
-
         let display_red = match timer.elapsed() {
             Ok(elapsed) => elapsed.as_secs() % 2 == 0,
-            Err(_) => {
-                true
-            }
+            Err(_) => true,
         };
 
         let square_texture = if display_red {
@@ -111,14 +134,19 @@ fn main() {
             &yellow_square
         };
 
-
-
         canvas
             .copy(
                 square_texture,
                 None,
                 Rect::new(0, 0, TEXTURE_SIZE, TEXTURE_SIZE),
             )
+            .expect("Couldn't copy texture into window");
+        
+        canvas
+            .copy(
+                &image_texture,
+                None,
+                Rect::new(40, 40, 400, 400))
             .expect("Couldn't copy texture into window");
 
         canvas.present();
