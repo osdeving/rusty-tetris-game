@@ -1,8 +1,43 @@
-use std::{time::Duration, thread::sleep};
+use std::{thread::sleep, time::{Duration, SystemTime}};
 
-use sdl2::{pixels::Color, event::Event, keyboard::Keycode};
+use sdl2::{
+    event::Event,
+    keyboard::Keycode,
+    pixels::Color,
+    rect::Rect,
+    render::{Canvas, Texture, TextureCreator}, 
+    video::{WindowContext, Window},
+};
 
 extern crate sdl2;
+
+#[derive(Clone, Copy)]
+enum TextureColor {
+    Yellow,
+    Red,
+}
+
+fn create_texture_rect<'a>(
+    canvas: &mut Canvas<Window>,
+    texture_creator: &'a TextureCreator<WindowContext>,
+    color: TextureColor,
+    size: u32,
+) -> Option<Texture<'a>> {
+    if let Ok(mut square_texture) = texture_creator.create_texture_target(None, size, size) {
+        canvas
+            .with_texture_canvas(&mut square_texture, |texture| {
+                match color {
+                    TextureColor::Yellow => texture.set_draw_color(Color::YELLOW),
+                    TextureColor::Red => texture.set_draw_color(Color::RED),
+                }
+                texture.clear();
+            })
+            .expect("Failed to color a texture");
+        Some(square_texture)
+    } else {
+        None
+    }
+}
 
 fn main() {
     let sdl_context = sdl2::init().expect("SDL Initialization Failed.");
@@ -20,26 +55,74 @@ fn main() {
 
     let mut canvas = window
         .into_canvas()
+        .target_texture()
+        .present_vsync()
         .build()
         .expect("Failed to convert window into canvas.");
 
-    canvas.set_draw_color(Color::RGB(255,120,255));
-    canvas.clear();
-    canvas.present();
+    let texture_creator = canvas.texture_creator();
+    const TEXTURE_SIZE: u32 = 32;
 
-    let mut event_bump = sdl_context.event_pump().expect("Failed to get SDL event bump");
+    let mut square_texture = texture_creator
+        .create_texture_target(None, TEXTURE_SIZE, TEXTURE_SIZE)
+        .expect("Failed to create texture");
+
+    canvas
+        .with_texture_canvas(&mut square_texture, |texture| {
+            texture.set_draw_color(Color::YELLOW);
+            texture.clear();
+        })
+        .expect("Failed to config texture color");
+
+    let red_square = create_texture_rect(&mut canvas, &texture_creator, TextureColor::Red, TEXTURE_SIZE).expect("Failed to create a texture");
+    let yellow_square = create_texture_rect(&mut canvas, &texture_creator, TextureColor::Yellow, TEXTURE_SIZE).expect("Failed to create a texture");
+
+    let timer = SystemTime::now();
+
+    let mut event_bump = sdl_context
+        .event_pump()
+        .expect("Failed to get SDL event bump");
 
     'running: loop {
         for event in event_bump.poll_iter() {
             match event {
-                Event::Quit {..} | Event::KeyDown { keycode: Some(Keycode::Escape), .. } =>
-                {
-                    break 'running
-                },
+                Event::Quit { .. }
+                | Event::KeyDown {
+                    keycode: Some(Keycode::Escape),
+                    ..
+                } => break 'running,
                 _ => {}
             }
-            sleep(Duration::new(0, 1_000_000_000u32 / 60));
         }
-    }
+        canvas.set_draw_color(Color::BLACK);
+        canvas.clear();
 
+
+        let display_red = match timer.elapsed() {
+            Ok(elapsed) => elapsed.as_secs() % 2 == 0,
+            Err(_) => {
+                true
+            }
+        };
+
+        let square_texture = if display_red {
+            &red_square
+        } else {
+            &yellow_square
+        };
+
+
+
+        canvas
+            .copy(
+                square_texture,
+                None,
+                Rect::new(0, 0, TEXTURE_SIZE, TEXTURE_SIZE),
+            )
+            .expect("Couldn't copy texture into window");
+
+        canvas.present();
+
+        sleep(Duration::new(0, 1_000_000_000u32 / 60));
+    }
 }
