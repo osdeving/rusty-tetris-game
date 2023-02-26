@@ -1,6 +1,6 @@
 use std::{
     fs::File,
-    io::{self, Write},
+    io::{self, Write, Read},
     thread::sleep,
     time::{Duration, SystemTime},
 };
@@ -75,9 +75,16 @@ fn test_line_to_slice() {
     assert_eq!(iter.next(), None);
 }
 
+
 fn write_into_file(content: &str, file_name: &str) -> io::Result<()> {
     let mut file = File::create(file_name)?;
     file.write_all(content.as_bytes())
+}
+
+fn read_from_file(file_name: &str) -> io::Result<String> {
+    let mut content = String::new();
+    File::open(file_name)?.read_to_string(&mut content)?;
+    Ok(content)
 }
 
 fn slice_to_string(slice: &[u32]) -> String {
